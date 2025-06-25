@@ -3,18 +3,16 @@
 namespace App\Filament\Resources\RentalResource\Pages;
 
 use App\Filament\Resources\RentalResource;
-use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ViewRecord;
 
-class ListRentals extends ListRecords
+class ViewRental extends ViewRecord
 {
     protected static string $resource = RentalResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
-            ,
+            \Filament\Actions\EditAction::make(),
         ];
     }
 }

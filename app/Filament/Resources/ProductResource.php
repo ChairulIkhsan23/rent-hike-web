@@ -117,4 +117,11 @@ class ProductResource extends Resource
             'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
     }
+
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Produk';
+    }
+    
 }

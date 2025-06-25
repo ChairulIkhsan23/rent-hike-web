@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('rental_id')->constrained('rentals')->onDelete('cascade');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->integer('jumlah');
-            $table->decimal('harga_total', 12, 2);
+            $table->decimal('harga_total', 12, 2)->nullable();
             $table->timestamps();
         });
     }

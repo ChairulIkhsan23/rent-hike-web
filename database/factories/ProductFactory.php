@@ -37,7 +37,7 @@ class ProductFactory extends Factory
             ]),
 
             'deskripsi' => $this->faker->sentence(),
-            'harga_sewa_per_hari' => $this->faker->numberBetween(20000, 100000),
+            'harga_sewa_per_hari' => $this->faker->numberBetween(2, 10) * 10000,
             'kategori_id' => Category::inRandomOrder()->value('id'),
             'stok' => $this->faker->numberBetween(1, 10),
             'foto' => 'assets/product-image/foto-produk.jpg'
