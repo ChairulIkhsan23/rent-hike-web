@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->decimal('total_harga', 12, 2)->nullable();
-            $table->enum('status', ['pending', 'dibayar', 'dikirim', 'selesai', 'dibatalkan'])->default('pending');
+            $table->enum('status', ['pending', 'dibayar', 'dipinjam', 'selesai', 'dibatalkan'])->default('pending');
             $table->timestamps();
         });
     }

@@ -11,18 +11,12 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 
-// Forms Component
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Card;
-
-// Tables Component
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\ViewColumn;
-
 
 class RentalResource extends Resource
 {
@@ -30,7 +24,7 @@ class RentalResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?string $navigationLabel = 'Rental';
     protected static ?string $modelLabel = 'Rental';
-        protected static ?string $navigationGroup = 'Rental';
+    protected static ?string $navigationGroup = 'Rental';
 
     public static function form(Form $form): Form
     {
@@ -112,7 +106,7 @@ class RentalResource extends Resource
                     ->options([
                         'pending' => 'Pending',
                         'dibayar' => 'Dibayar',
-                        'dikirim' => 'Dikirim',
+                        'dipinjam' => 'Dipinjam',
                         'selesai' => 'Selesai',
                         'dibatalkan' => 'Dibatalkan',
                     ])
@@ -139,9 +133,9 @@ class RentalResource extends Resource
         $durasi = 1;
         if ($mulai && $selesai) {
             try {
-                $mulaiDate = \Illuminate\Support\Carbon::parse($mulai);
-                $selesaiDate = \Illuminate\Support\Carbon::parse($selesai);
-                $durasi = max($mulaiDate->diffInDays($selesaiDate) + 1, 1); // Tambah 1 agar hari pertama dihitung
+                $mulaiDate = Carbon::parse($mulai);
+                $selesaiDate = Carbon::parse($selesai);
+                $durasi = max($mulaiDate->diffInDays($selesaiDate) + 1, 1);
             } catch (\Exception $e) {
                 $durasi = 1;
             }
@@ -168,9 +162,9 @@ class RentalResource extends Resource
                 $durasi = 1;
                 if ($mulai && $selesai) {
                     try {
-                        $mulaiDate = \Illuminate\Support\Carbon::parse($mulai);
-                        $selesaiDate = \Illuminate\Support\Carbon::parse($selesai);
-                        $durasi = max($mulaiDate->diffInDays($selesaiDate) + 1, 1); // Tambah 1 agar hari pertama dihitung
+                        $mulaiDate = Carbon::parse($mulai);
+                        $selesaiDate = Carbon::parse($selesai);
+                        $durasi = max($mulaiDate->diffInDays($selesaiDate) + 1, 1);
                     } catch (\Exception $e) {
                         $durasi = 1;
                     }
@@ -195,77 +189,42 @@ class RentalResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')
-                    ->label('Penyewa')
-                    ->searchable()
-                    ->sortable(),
-                
-                TextColumn::make('tanggal_mulai')
-                    ->label('Mulai')
-                    ->date('d M Y')
-                    ->sortable(),
-                
-                TextColumn::make('tanggal_selesai')
-                    ->label('Selesai')
-                    ->date('d M Y')
-                    ->sortable(),
-                
-                TextColumn::make('total_harga')
-                    ->label('Total Harga')
-                    ->money('IDR')
-                    ->sortable(),
-                
-               TextColumn::make('status')
+                TextColumn::make('user.name')->label('Penyewa')->searchable()->sortable(),
+                TextColumn::make('tanggal_mulai')->label('Mulai')->date('d M Y')->sortable(),
+                TextColumn::make('tanggal_selesai')->label('Selesai')->date('d M Y')->sortable(),
+                TextColumn::make('total_harga')->label('Total Harga')->money('IDR')->sortable(),
+
+                TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'pending' => 'gray',
                         'dibayar' => 'success',
-                        'dikirim' => 'info',
-                        'selesai' => 'success',
+                        'dipinjam' => 'info',
+                        'selesai' => 'primary',
                         'dibatalkan' => 'danger',
-                        default => 'warning',
+                        default => 'secondary',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'pending' => 'Pending',
                         'dibayar' => 'Dibayar',
-                        'dikirim' => 'Dikirim',
+                        'dipinjam' => 'Dipinjam',
                         'selesai' => 'Selesai',
                         'dibatalkan' => 'Dibatalkan',
                         default => ucfirst($state),
                     })
                     ->sortable(),
-                
-                TextColumn::make('created_at')
-                    ->label('Dibuat')
-                    ->dateTime('d M Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('created_at')->label('Dibuat')->dateTime('d M Y H:i')->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'dibayar' => 'Dibayar',
-                        'dikirim' => 'Dikirim',
-                        'selesai' => 'Selesai',
-                        'dibatalkan' => 'Dibatalkan',
-                    ]),
-                
-                Tables\Filters\Filter::make('tanggal_mulai')
-                    ->form([
-                        DatePicker::make('dari_tanggal'),
-                        DatePicker::make('sampai_tanggal'),
-                    ])
-                    ->query(function ($query, array $data) {
-                        return $query
-                            ->when($data['dari_tanggal'],
-                                fn ($query) => $query->whereDate('tanggal_mulai', '>=', $data['dari_tanggal'])
-                            )
-                            ->when($data['sampai_tanggal'],
-                                fn ($query) => $query->whereDate('tanggal_mulai', '<=', $data['sampai_tanggal'])
-                            );
-                    }),
+                Tables\Filters\SelectFilter::make('status')->options([
+                    'pending' => 'Pending',
+                    'dibayar' => 'Dibayar',
+                    'dipinjam' => 'Dipinjam',
+                    'selesai' => 'Selesai',
+                    'dibatalkan' => 'Dibatalkan',
+                ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -277,9 +236,7 @@ class RentalResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('markAsPaid')
                         ->label('Tandai sebagai Dibayar')
-                        ->action(function ($records) {
-                            $records->each->update(['status' => 'dibayar']);
-                        })
+                        ->action(fn ($records) => $records->each->update(['status' => 'dibayar']))
                         ->requiresConfirmation(),
                 ]),
             ])
@@ -290,9 +247,7 @@ class RentalResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            // Add relations if needed
-        ];
+        return [];
     }
 
     public static function getPages(): array
