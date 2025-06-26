@@ -10,7 +10,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Carbon;
 
 class RentalItemResource extends Resource
@@ -18,7 +17,7 @@ class RentalItemResource extends Resource
     protected static ?string $model = RentalItem::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
-    protected static ?string $navigationLabel = 'Item Rental Aktif';
+    protected static ?string $navigationLabel = 'Item Rental';
     protected static ?string $navigationGroup = 'Rental';
 
     public static function form(Form $form): Form
@@ -29,6 +28,11 @@ class RentalItemResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => 
+                $query->whereHas('rental', fn ($q) => 
+                    $q->where('status', 'dipinjam')
+                )
+            )
             ->columns([
                 TextColumn::make('product.nama')
                     ->label('Produk')
@@ -66,9 +70,6 @@ class RentalItemResource extends Resource
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
-            ->filters([
-                    //
-            ])
             ->actions([]) // readonly
             ->bulkActions([]);
     }

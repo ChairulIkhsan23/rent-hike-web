@@ -189,10 +189,25 @@ class RentalResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')->label('Penyewa')->searchable()->sortable(),
-                TextColumn::make('tanggal_mulai')->label('Mulai')->date('d M Y')->sortable(),
-                TextColumn::make('tanggal_selesai')->label('Selesai')->date('d M Y')->sortable(),
-                TextColumn::make('total_harga')->label('Total Harga')->money('IDR')->sortable(),
+                TextColumn::make('user.name')
+                    ->label('Penyewa')
+                    ->searchable()
+                    ->sortable(),
+                    
+                TextColumn::make('tanggal_mulai')
+                    ->label('Mulai')
+                    ->date('d M Y')
+                    ->sortable(),
+
+                TextColumn::make('tanggal_selesai')
+                    ->label('Selesai')
+                    ->date('d M Y')
+                    ->sortable(),
+
+                TextColumn::make('total_harga')
+                    ->label('Total Harga')
+                    ->money('IDR')
+                    ->sortable(),
 
                 TextColumn::make('status')
                     ->label('Status')
