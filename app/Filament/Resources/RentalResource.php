@@ -21,6 +21,8 @@ use Filament\Forms\Components\Card;
 // Tables Component
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ViewColumn;
+
 
 class RentalResource extends Resource
 {
@@ -213,15 +215,25 @@ class RentalResource extends Resource
                     ->money('IDR')
                     ->sortable(),
                 
-                BadgeColumn::make('status')
+               TextColumn::make('status')
                     ->label('Status')
-                    ->colors([
-                        'warning' => 'pending',
-                        'success' => 'dibayar',
-                        'info' => 'dikirim',
-                        'primary' => 'selesai',
-                        'danger' => 'dibatalkan',
-                    ])
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'gray',
+                        'dibayar' => 'success',
+                        'dikirim' => 'info',
+                        'selesai' => 'success',
+                        'dibatalkan' => 'danger',
+                        default => 'warning',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'pending' => 'Pending',
+                        'dibayar' => 'Dibayar',
+                        'dikirim' => 'Dikirim',
+                        'selesai' => 'Selesai',
+                        'dibatalkan' => 'Dibatalkan',
+                        default => ucfirst($state),
+                    })
                     ->sortable(),
                 
                 TextColumn::make('created_at')

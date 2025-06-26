@@ -10,4 +10,5 @@ class ListRentalItems extends ListRecords
 {
     protected static string $resource = RentalItemResource::class;
 
+        protected static ?string $title = 'Daftar Item Rental';
 }

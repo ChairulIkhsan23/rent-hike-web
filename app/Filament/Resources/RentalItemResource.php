@@ -9,6 +9,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Carbon;
 
 class RentalItemResource extends Resource
 {
@@ -52,15 +54,20 @@ class RentalItemResource extends Resource
                     ->label('Tanggal Selesai')
                     ->date()
                     ->sortable(),
-
-                TextColumn::make('harga_total')
-                    ->label('Harga Total')
-                    ->money('IDR')
-                    ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                // Nanti bisa ditambahkan filter aktif/sudah selesai
+                Filter::make('aktif')
+                    ->label('Sedang Aktif')
+                    ->query(fn ($query) => $query->whereHas('rental', function ($rentalQuery) {
+                        $rentalQuery->whereDate('tanggal_selesai', '>=', Carbon::today());
+                    })),
+
+                Filter::make('selesai')
+                    ->label('Sudah Selesai')
+                    ->query(fn ($query) => $query->whereHas('rental', function ($rentalQuery) {
+                        $rentalQuery->whereDate('tanggal_selesai', '<', Carbon::today());
+                    })),
             ])
             ->actions([]) // readonly
             ->bulkActions([]);
