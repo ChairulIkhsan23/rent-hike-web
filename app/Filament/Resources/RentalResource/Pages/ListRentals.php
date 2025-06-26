@@ -10,11 +10,14 @@ class ListRentals extends ListRecords
 {
     protected static string $resource = RentalResource::class;
 
+    protected static ?string $title = 'Daftar Rental';
+
     protected function getHeaderActions(): array
     {
         return [
             Actions\CreateAction::make()
-            ,
+            ->label('Rental Baru')
+            ->icon('heroicon-o-folder-plus'),
         ];
     }
 }

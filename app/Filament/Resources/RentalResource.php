@@ -10,11 +10,15 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
+
+// Forms Component
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Card;
+
+// Tables Component
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 
@@ -119,7 +123,7 @@ class RentalResource extends Resource
     public static function updateItemPrice(callable $set, Forms\Get $get): void
     {
         $productId = $get('product_id');
-        $jumlah = $get('jumlah') ?? 1;
+        $jumlah = (int) $get('jumlah') ?: 1;
         $product = \App\Models\Product::find($productId);
 
         if (!$product) {
@@ -130,12 +134,12 @@ class RentalResource extends Resource
         $mulai = $get('../../tanggal_mulai');
         $selesai = $get('../../tanggal_selesai');
 
-        $durasi = 1; // Default 1 day if dates not set
+        $durasi = 1;
         if ($mulai && $selesai) {
             try {
-                $mulaiDate = Carbon::parse($mulai);
-                $selesaiDate = Carbon::parse($selesai);
-                $durasi = max($mulaiDate->diffInDays($selesaiDate), 1);
+                $mulaiDate = \Illuminate\Support\Carbon::parse($mulai);
+                $selesaiDate = \Illuminate\Support\Carbon::parse($selesai);
+                $durasi = max($mulaiDate->diffInDays($selesaiDate) + 1, 1); // Tambah 1 agar hari pertama dihitung
             } catch (\Exception $e) {
                 $durasi = 1;
             }
@@ -149,11 +153,11 @@ class RentalResource extends Resource
     public static function updateAllPrices(callable $set, Forms\Get $get): void
     {
         $items = $get('rentalItems') ?? [];
-        
+
         foreach ($items as $key => $item) {
             $productId = $item['product_id'] ?? null;
-            $jumlah = $item['jumlah'] ?? 1;
-            
+            $jumlah = (int) ($item['jumlah'] ?? 1);
+
             if ($productId) {
                 $product = \App\Models\Product::find($productId);
                 $mulai = $get('tanggal_mulai');
@@ -162,20 +166,22 @@ class RentalResource extends Resource
                 $durasi = 1;
                 if ($mulai && $selesai) {
                     try {
-                        $mulaiDate = Carbon::parse($mulai);
-                        $selesaiDate = Carbon::parse($selesai);
-                        $durasi = max($mulaiDate->diffInDays($selesaiDate), 1);
+                        $mulaiDate = \Illuminate\Support\Carbon::parse($mulai);
+                        $selesaiDate = \Illuminate\Support\Carbon::parse($selesai);
+                        $durasi = max($mulaiDate->diffInDays($selesaiDate) + 1, 1); // Tambah 1 agar hari pertama dihitung
                     } catch (\Exception $e) {
                         $durasi = 1;
                     }
                 }
 
-                $harga = $product->harga_sewa_per_hari * $jumlah * $durasi;
-                $set("rentalItems.{$key}.harga_total", $harga);
+                if ($product) {
+                    $harga = $product->harga_sewa_per_hari * $jumlah * $durasi;
+                    $set("rentalItems.{$key}.harga_total", $harga);
+                }
             }
         }
 
-        $set('total_harga', static::calculateTotalPrice($items));
+        $set('total_harga', static::calculateTotalPrice($get('rentalItems') ?? []));
     }
 
     public static function calculateTotalPrice(array $items): int
